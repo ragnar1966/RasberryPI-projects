@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # bmp280.py
-# Simple python script to read out the temperature of the
+# Simple python script to read out the temperature and preassure of the
 # BMP280 temperature and pressure sensor
 
 import smbus
