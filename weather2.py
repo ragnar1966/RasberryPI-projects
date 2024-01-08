@@ -1,3 +1,4 @@
+
 # bmp280.py
 # Simple python script to read out the temperature of the
 # BMP280 temperature and pressure sensor
@@ -13,8 +14,8 @@ i2c = smbus.SMBus(1)
 
 # Setup the config register
 
-i2c.write_byte_data(bmp_addr, 0xf5, (5<<5))
-i2c.write_byte_data(bmp_addr, 0xf4, ((5<<5) | (3<0)))
+i2c.write_byte_data(bmp_addr, 0xf5, (0b101<<5))
+i2c.write_byte_data(bmp_addr, 0xf4, ((0b101<<5) | (0b111<<2) | (0b11<<0)))
 
 # Sensor is set up and will do a measurement every 1s
 
@@ -38,36 +39,36 @@ dig_P8 = i2c.read_word_data(bmp_addr, 0x9C)
 dig_P9 = i2c.read_word_data(bmp_addr, 0x9E)
 
 if(dig_P2 > 32767):
-    dig_P2 -= 65536
+        dig_P2 -= 65536
 if(dig_P3 > 32767):
-    dig_P3 -= 65536
+        dig_P3 -= 65536
 if(dig_P4 > 32767):
-    dig_P4 -= 65536
+        dig_P4 -= 65536
 if(dig_P5 > 32767):
-    dig_P5 -= 65536
+        dig_P5 -= 65536
 if(dig_P6 > 32767):
-    dig_P6 -= 65536
+        dig_P6 -= 65536
 if(dig_P7 > 32767):
-    dig_P7 -= 65536
+        dig_P7 -= 65536
 if(dig_P8 > 32767):
-    dig_P8 -= 65536
+        dig_P8 -= 65536
 if(dig_P9 > 32767):
-    dig_P8 -= 65536
+        dig_P9 -= 65536
     
 
 
-
 while True:
-# Read the raw temperature and preassure
+# Read the raw temperature
     d1 = i2c.read_byte_data(bmp_addr, 0xfa)
     d2 = i2c.read_byte_data(bmp_addr, 0xfb)
     d3 = i2c.read_byte_data(bmp_addr, 0xfc)
     
+    adc_T = ((d1 << 16) | (d2 << 8) | d3) >> 4
+    
+ # Read the raw preassure   
     d4 = i2c.read_byte_data(bmp_addr, 0xf7)
     d5 = i2c.read_byte_data(bmp_addr, 0xf8)
     d6 = i2c.read_byte_data(bmp_addr, 0xf9)
-
-    adc_T = ((d1 << 16) | (d2 << 8) | d3) >> 4
     
     adc_P = ((d4 << 16) | (d5 << 8) | d6) >> 4
 
@@ -79,25 +80,26 @@ while True:
     T = T / 100
     
 # Calculate preassure
-    var1 = (t_fine) * 128000;
+    var1 = (t_fine) - 128000;
     var2 = var1 * var1 * dig_P6;
     var2 = var2 + ((var1 * dig_P5)<<17);
     var2 = var2 + ((dig_P4)<<35);
     var1 = ((var1 * var1 * dig_P3)>>8) + ((var1 * dig_P2)<<12);
-    var1 = ((((1)<<47)+var1)) * (dig_P1)>>33;
-    p = 1048576-adc_P;
-    p = (((p<<31)-var2)*3125)/var1;
+    var1 = ((((1)<<47) + var1)) * (dig_P1)>>33;
+    
+    p = 1048576 - adc_P;
+    p = (((p<<31) - var2)*3125)/var1;
     p = int(p);
     var1 = ((dig_P9) * (p>>13) * (p>>13)) >> 25;
     var2 = ((dig_P8) * p) >> 19;
     p = ((p + var1 + var2) >> 8) + ((dig_P7)<<4);
-    p = p/256
+    p = (p/256)/100;
     
 
-
-    print("Temperature: " +str(T)+ "grader Celsius")
-    print("Tryck: " +str(p) +" hPa")
+    print(f"Temperature: {T} grader Celsius")
+    print(f"Tryck: {p} hPa")
     sleep(1)
     
 #
+
 
