@@ -1,4 +1,4 @@
-# bmp280.py
+# bmp280.py made by @johannes4gnu_linux96 
 # Simple python script to read out the temperature of the
 # BMP280 temperature and pressure sensor
 
