@@ -1,4 +1,4 @@
-
+# @johannes4gnu_linux96 code example for measure temperature with pressure measure added
 # bmp280.py
 # Simple python script to read out the temperature of the
 # BMP280 temperature and pressure sensor
